@@ -1,0 +1,29 @@
+﻿@model MediaGallery.Data.MediaFolder
+@{
+    ViewData["Title"] = "Folder";
+}
+
+<div class="main">
+    <div class="container">
+        <ul class="breadcrumb">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="">Store</a></li>
+            <li class="active">Men category</li>
+        </ul>
+        <!-- BEGIN SIDEBAR & CONTENT -->
+        <div class="row margin-bottom-40">
+
+            <partial name="_Sidebar" />
+
+            <!-- BEGIN CONTENT -->
+            <div class="col-md-9 col-sm-7">
+                <h2>@Model.Title</h2>
+
+                <partial name="_ItemsList" model="@Model.Items" />
+            </div>
+            <!-- END CONTENT -->
+        </div>
+        <!-- END SIDEBAR & CONTENT -->
+    </div>
+</div>
+

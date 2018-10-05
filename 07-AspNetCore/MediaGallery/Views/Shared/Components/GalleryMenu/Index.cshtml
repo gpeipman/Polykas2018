@@ -1,0 +1,14 @@
+@model IEnumerable<MediaGallery.Data.MediaFolder>
+
+<div class="sidebar col-md-3 col-sm-5">
+    <ul class="list-group margin-bottom-25 sidebar-menu">
+        @foreach (var item in Model)
+        {
+            var routeData = new Dictionary<string, string>
+            {
+                { "id", item.Id.ToString() }
+            };
+            <li class="list-group-item clearfix"><i class="fa fa-angle-right"></i><a asp-controller="Home" asp-action="Details" asp-all-route-data="@routeData">@item.Title</a></li>
+        }
+    </ul>
+</div>

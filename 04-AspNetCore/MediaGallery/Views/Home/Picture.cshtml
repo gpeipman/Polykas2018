@@ -1,0 +1,8 @@
+﻿@model MediaGallery.Data.Photo
+@{
+    ViewData["Title"] = "Picture";
+}
+
+<h2>@Model.Title</h2>
+
+<img src="/@Model.FileName" style="max-width:800px" />
