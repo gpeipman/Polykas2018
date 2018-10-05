@@ -1,0 +1,23 @@
+@model IEnumerable<MediaGallery.Data.MediaFolder>
+@inject GalleryContext _galleryContext
+@{
+    var folderId = _galleryContext.GetCurrentFolderId();
+}
+<div class="sidebar col-md-3 col-sm-5">
+
+    <ul class="list-group margin-bottom-25 sidebar-menu">
+        @foreach (var item in Model)
+        {
+            var activeClass = "";
+            if (item.Id == folderId)
+            {
+                activeClass = "active";
+            }
+            var routeData = new Dictionary<string, string>
+            {
+                { "id", item.Id.ToString() }
+            };
+            <li class="list-group-item clearfix @activeClass"><i class="fa fa-angle-right"></i><a asp-controller="Home" asp-action="Details" asp-all-route-data="@routeData">@item.Title</a></li>
+        }
+    </ul>
+</div>
