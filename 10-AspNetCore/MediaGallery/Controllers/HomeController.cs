@@ -24,69 +24,69 @@ namespace MediaGallery.Controllers
 
         public IActionResult Index()
         {
-            if(_dataContext.Folders.Count() == 0)
-            {
-                var folder = new MediaFolder();
-                folder.Title = "Lilled";                
+            //if(_dataContext.Folders.Count() == 0)
+            //{
+            //    var folder = new MediaFolder();
+            //    folder.Title = "Lilled";                
 
-                var photo = new Photo();
-                photo.Title = "Lill 2";
-                photo.FileName = "lill2.jpg";
-                folder.Items.Add(photo);
+            //    var photo = new Photo();
+            //    photo.Title = "Lill 2";
+            //    photo.FileName = "lill2.jpg";
+            //    folder.Items.Add(photo);
 
-                _dataContext.Folders.Add(folder);
+            //    _dataContext.Folders.Add(folder);
 
-                var subFolder = new MediaFolder();
-                subFolder.Title = "Roosid";
-                subFolder.ParentFolder = folder;
+            //    var subFolder = new MediaFolder();
+            //    subFolder.Title = "Roosid";
+            //    subFolder.ParentFolder = folder;
 
-                var subSubFolder = new MediaFolder();
-                subSubFolder.Title = "Sinised roosid";
-                subSubFolder.ParentFolder = subSubFolder;
-                subFolder.Items.Add(subSubFolder);
+            //    var subSubFolder = new MediaFolder();
+            //    subSubFolder.Title = "Sinised roosid";
+            //    subSubFolder.ParentFolder = subSubFolder;
+            //    subFolder.Items.Add(subSubFolder);
 
-                photo = new Photo();
-                photo.Title = "Lill 1";
-                photo.FileName = "lill1.jpg";
-                photo.ParentFolder = subFolder;
-                subFolder.Items.Add(photo);
-                folder.Items.Add(subFolder);
+            //    photo = new Photo();
+            //    photo.Title = "Lill 1";
+            //    photo.FileName = "lill1.jpg";
+            //    photo.ParentFolder = subFolder;
+            //    subFolder.Items.Add(photo);
+            //    folder.Items.Add(subFolder);
 
-                _dataContext.Folders.Add(subFolder);
-                _dataContext.Folders.Add(subSubFolder);
+            //    _dataContext.Folders.Add(subFolder);
+            //    _dataContext.Folders.Add(subSubFolder);
 
-                folder = new MediaFolder();
-                folder.Title = "Majad";
-                _dataContext.Folders.Add(folder);
+            //    folder = new MediaFolder();
+            //    folder.Title = "Majad";
+            //    _dataContext.Folders.Add(folder);
 
-                subFolder = new MediaFolder();
-                subFolder.Title = "Horror";
-                subFolder.ParentFolder = folder;
-                folder.Items.Add(subFolder);
+            //    subFolder = new MediaFolder();
+            //    subFolder.Title = "Horror";
+            //    subFolder.ParentFolder = folder;
+            //    folder.Items.Add(subFolder);
 
-                _dataContext.Folders.Add(subFolder);
+            //    _dataContext.Folders.Add(subFolder);
 
-                folder = new MediaFolder();
-                folder.Title = "Söögid";
-                _dataContext.Folders.Add(folder);
+            //    folder = new MediaFolder();
+            //    folder.Title = "Söögid";
+            //    _dataContext.Folders.Add(folder);
 
-                photo = new Photo();
-                photo.Title = "Pealkiri 1";
-                photo.FileName = "pilt.jpg";
-                _dataContext.Photos.Add(photo);
+            //    photo = new Photo();
+            //    photo.Title = "Pealkiri 1";
+            //    photo.FileName = "pilt.jpg";
+            //    _dataContext.Photos.Add(photo);
 
-                photo = new Photo();
-                photo.Title = "Pealkiri 2";
-                photo.FileName = "pilt2.jpg";
-                _dataContext.Photos.Add(photo);
+            //    photo = new Photo();
+            //    photo.Title = "Pealkiri 2";
+            //    photo.FileName = "pilt2.jpg";
+            //    _dataContext.Photos.Add(photo);
 
-                photo = new Photo();
-                photo.Title = "Pealkiri 3";
-                photo.FileName = "pilt3.jpg";
-                _dataContext.Photos.Add(photo);
+            //    photo = new Photo();
+            //    photo.Title = "Pealkiri 3";
+            //    photo.FileName = "pilt3.jpg";
+            //    _dataContext.Photos.Add(photo);
 
-                _dataContext.SaveChanges();
-            }
+            //    _dataContext.SaveChanges();
+            //}
 
             var model = new FrontPageModel();
             model.NewPhotos = _dataContext.Photos.Cast<MediaItem>().ToList();
