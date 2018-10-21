@@ -1,0 +1,16 @@
+[
+  {
+    "thumbnail": "lill1.jpg",
+    "fileName": "lill1.jpg",
+    "id": 11,
+    "title": "Lill 1",
+    "mediaItemType": "Photo"
+  },
+  {
+    "thumbnail": "folder.jpg",
+    "fileName": null,
+    "id": 10,
+    "title": "Sinised roosid",
+    "mediaItemType": "MediaFolder"
+  }
+]
