@@ -1,5 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Upload file";
+    var messages = (ViewBag.Messages as List<string>) ?? new List<string>();
 }
 
 <div class="main">
@@ -7,6 +8,17 @@
         <div class="row margin-bottom-40">
             <h2>Upload file</h2>
             <div class="col-md-4">
+                @if (messages.Count > 0)
+                {
+                    <div class="alert alert-success">
+                        <ul>
+                            @foreach(var message in messages)
+                            {
+                                <li>@message</li>
+                            }
+                        </ul>
+                    </div>
+                }
                 <form enctype="multipart/form-data" method="post" action="@Url.Action("UploadFile", "Home", new { parentFolder = ViewBag.ParentFolderId })" >
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="file" name="files" multiple />

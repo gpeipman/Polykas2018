@@ -166,6 +166,8 @@ namespace MediaGallery.Controllers
         [HttpPost]
         public IActionResult UploadFile(IList<IFormFile> files, int? parentFolder, [FromServices]SavePhotoCommand savePhotoCommand)
         {
+            var list = new List<string>();
+
             foreach(var file in files)
             {
                 var model = new PhotoEditModel();
@@ -174,8 +176,12 @@ namespace MediaGallery.Controllers
                 model.ParentFolderId = parentFolder;
                 model.File = file;
 
+                list.AddRange(savePhotoCommand.Validate(model));
+
                 savePhotoCommand.Execute(model);
             }
+
+            ViewBag.Messages = list;
 
             return View();
         }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using MediaGallery.Data;
 using MediaGallery.Models;
 using Microsoft.Extensions.Logging;
@@ -44,6 +45,11 @@ namespace MediaGallery.Commands
         public bool Rollback()
         {
             return true;
+        }
+
+        public List<string> Validate(PhotoEditModel parameter)
+        {
+            return new List<string>();
         }
     }
 }

@@ -54,5 +54,17 @@ namespace MediaGallery.Commands
 
             return result;
         }
+
+        public List<string> Validate(T parameter)
+        {
+            var messages = new List<string>();
+
+            foreach(var command in _commands)
+            {
+                messages.AddRange(command.Validate(parameter));
+            }
+
+            return messages;
+        }
     }
 }
