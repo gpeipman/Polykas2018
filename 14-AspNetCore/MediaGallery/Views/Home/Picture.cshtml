@@ -1,0 +1,30 @@
+﻿@model MediaGallery.Data.Photo
+@inject GalleryContext _context
+@{
+    ViewData["Title"] = "Picture";
+}
+<div class="main">
+    <div class="container">        
+
+        <!-- BEGIN SIDEBAR & CONTENT -->
+        <div class="row margin-bottom-10">
+
+            <partial name="_Sidebar" />
+
+            <!-- BEGIN CONTENT -->
+            <div class="col-md-9 col-sm-7">
+                <h2>@Model.Title</h2>
+
+                <img src="@Url.Content(_context.GetItemUrl(Model))" style="max-width:800px; border: 1px solid darkgray" />
+            </div>
+            <!-- END CONTENT -->
+        </div>
+        <div class="row margin-bottom-40">
+            <div class="col-md-3"></div>
+            <div class="col-md-9 col-sm-7">
+                <a href="@Url.Action("Edit","Home", new { id = Model.Id })" class="btn btn-primary">Muuda</a>
+            </div>
+            <!-- END SIDEBAR & CONTENT -->
+        </div>
+    </div>
+</div>
