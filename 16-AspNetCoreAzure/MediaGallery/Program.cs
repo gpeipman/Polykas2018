@@ -16,38 +16,18 @@ namespace MediaGallery
     {
         public static void Main(string[] args)
         {
-            CreateFileLogger();
             CreateWebHostBuilder(args).Build().Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>();
-        public static void CreateFileLogger()
-
-        {
-
-            Log.Logger = new LoggerConfiguration()
-
-                           .WriteTo.File("Logs/Example.txt",
-
-                                    LogEventLevel.Information, // Minimum Log level
-
-                                    rollingInterval: RollingInterval.Day, // This will append time period to the filename like Example20180316.txt
-
-                                    retainedFileCountLimit: null,
-
-                                    fileSizeLimitBytes: null,
-
-                                    outputTemplate: "{Timestamp:dd-MMM-yyyy HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",  // Set custom file format
-
-                                    shared: true // Shared between multi-process shared log files
-
-                                    )
-
-                            .CreateLogger();
-
-        }
-
+                .UseStartup<Startup>()
+                .UseSerilog((ctx, cfg) =>
+                {
+                    cfg
+                        .MinimumLevel.Warning()
+                        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+                        .WriteTo.RollingFile("Logs\\Web-{Date}.log", outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} {Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}");
+                });
     }
 }
