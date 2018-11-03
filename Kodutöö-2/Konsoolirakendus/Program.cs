@@ -25,7 +25,7 @@ namespace GoogleDriveConsole
                 credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.Load(stream).Secrets,
                     Scopes,
-                    "gpeipman@gmail.com", // OMA GMAIL AADRESS SIIA!!!
+                    "mingiasi@gmail.com", // OMA GMAIL AADRESS SIIA!!!
                     CancellationToken.None,
                     new FileDataStore(credPath, true)).Result;
                 Console.WriteLine("Credential file saved to: " + credPath);
