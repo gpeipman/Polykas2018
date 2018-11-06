@@ -4,7 +4,7 @@
     ViewData["Title"] = "Picture";
 }
 <div class="main">
-    <div class="container">        
+    <div class="container">
 
         <!-- BEGIN SIDEBAR & CONTENT -->
         <div class="row margin-bottom-10">
@@ -15,7 +15,7 @@
             <div class="col-md-9 col-sm-7">
                 <h2>@Model.Title</h2>
 
-                <img src="@Url.Content(_context.GetItemUrl(Model))" style="max-width:800px; border: 1px solid darkgray" />
+                <img id="GalleryImage" src="@Url.Content(_context.GetItemUrl(Model))" style="max-width:800px; border: 1px solid darkgray" />
             </div>
             <!-- END CONTENT -->
         </div>
@@ -23,8 +23,69 @@
             <div class="col-md-3"></div>
             <div class="col-md-9 col-sm-7">
                 <a href="@Url.Action("Edit","Home", new { id = Model.Id })" class="btn btn-primary">Muuda</a>
+                <a href="#" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Kustuta</a>
+                <select id="effectDropDown">
+                    <option value=""></option>
+                    <option value="BlackWhite">Must-valge</option>
+                    <option value="OilPaint">Õlimaal</option>
+                    <option value="Sepia">Sepia</option>
+                    <option value="Blur">Blur</option>
+                    <option value="Sharpen">Sharpen</option>
+                    <option value="Glow">Glow</option>
+                    <option value="Invert">Invert</option>
+                </select>
+                <div class="text-warning" id="EffectWarning" style="display:none">Muudan pilti ....</div>
             </div>
             <!-- END SIDEBAR & CONTENT -->
         </div>
     </div>
 </div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Pildi kustutamine</h4>
+            </div>
+            <div class="modal-body">
+                <p>Oled kindel, et soovid pildi kustutada?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="DeleteImageButton">Kustuta</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Loobu</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<form method="post" id="DeleteForm" action="@Url.Action("DeleteFile", "Home", new { Id = Model.Id })"></form>
+
+@section scripts {
+<script>
+    var effectRoute = '@Html.Raw(Url.Action("GetFileWithEffect", "Home", new { id = Model.Id, effect = ".effect." }))';
+
+    $(document).ready(function () {
+        $('#DeleteImageButton').click(function () {
+            $('#DeleteForm').submit();
+            return false;
+        });
+        
+        $('#effectDropDown').change(function () {
+            $('#EffectWarning').css('display', 'inline-block');
+            $("#GalleryImage").one("load", function () {
+                $('#EffectWarning').hide();
+            })
+            var effect = $('#effectDropDown').val();
+            var url = effectRoute.replace('.effect.', effect);
+
+            $('#GalleryImage').attr('src', url);
+        })
+    });
+
+
+</script>
+}

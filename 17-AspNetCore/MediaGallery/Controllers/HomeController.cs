@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using SixLabors.ImageSharp.Processing;
 using MediaGallery.Commands;
 using MediaGallery.Data;
 using MediaGallery.FileSystem;
@@ -12,6 +13,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace MediaGallery.Controllers
 {
@@ -173,6 +177,11 @@ namespace MediaGallery.Controllers
                 model.ParentFolderId = parentFolder;
                 model.File = file;
 
+                var img = ExifLibrary.ImageFile.FromStream(file.OpenReadStream());
+                foreach(var prop in img.Properties)
+                {
+                    Debug.WriteLine(prop.Name + ": " + prop.Value);
+                }
                 list.AddRange(savePhotoCommand.Validate(model));
 
                 savePhotoCommand.Execute(model);
@@ -186,19 +195,32 @@ namespace MediaGallery.Controllers
         [HttpGet]
         public void GetFile(int id)
         {
-            var item = _dataContext.Photos
+            var item = _dataContext.Items
                                    .Include(p => p.ParentFolder)
                                    .FirstOrDefault(i => i.Id == id);
 
-            var folder = item.ParentFolder;
-            var path = item.FileName;
-            if (folder != null)
+            var path = "";
+            var fileName = "";
+
+            if (item is MediaFolder)
             {
-                path = _galleryContext.GetFolderPath(folder.Id, item.FileName);
+                fileName = "folder.jpg";
+                path = fileName;
+            }
+            else
+            {
+                var fileItem = (Photo)item;
+                var folder = fileItem.ParentFolder;
+                path = fileItem.FileName;
+                if (folder != null)
+                {
+                    path = _galleryContext.GetFolderPath(folder.Id, fileItem.FileName);
+                }
+                fileName = fileItem.FileName;
             }
 
             Response.Clear();
-            Response.Headers.Add("Content-Disposition", "attachment;filename=" + item.FileName);
+            Response.Headers.Add("Content-Disposition", "attachment;filename=" + fileName);
 
             try
             {
@@ -208,6 +230,94 @@ namespace MediaGallery.Controllers
                 }
             }
             catch(Exception ex)
+            {
+                _logger.LogError(ex, "");
+            }
+        }
+
+        [HttpPost]
+        public IActionResult DeleteFile(int id)
+        {
+            var file = _dataContext.Photos
+                                   .Include(p => p.ParentFolder)
+                                   .FirstOrDefault(p => p.Id == id);
+
+            var parentId = file.ParentFolder?.Id;
+
+            _dataContext.Photos.Remove(file);
+            _dataContext.SaveChanges();
+
+            if(parentId == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            return RedirectToAction("Details", new { id = parentId });
+        }
+
+        public void GetFileWithEffect(int id, string effect)
+        {
+            var item = _dataContext.Items
+                                   .Include(p => p.ParentFolder)
+                                   .FirstOrDefault(i => i.Id == id);
+
+            var fileItem = (Photo)item;
+            var folder = fileItem.ParentFolder;
+            var path = fileItem.FileName;
+            if (folder != null)
+            {
+                path = _galleryContext.GetFolderPath(folder.Id, fileItem.FileName);
+            }
+            var fileName = fileItem.FileName;
+
+            Response.Clear();
+            Response.Headers.Add("Content-Disposition", "attachment;filename=" + fileName);
+
+            try
+            {
+                IImageFormat format;
+                using (var fileStream = _fileClient.GetFile(path))
+                using(var image = Image.Load(fileStream, out format))
+                {
+                    Image<Rgba32> imageWithEffect;
+
+                    if(effect == "BlackWhite")
+                    {
+                        imageWithEffect = image.Clone(ctx => ctx.BlackWhite());
+                    }
+                    else if(effect == "OilPaint")
+                    {
+                        imageWithEffect = image.Clone(ctx => ctx.OilPaint());
+                    }
+                    else if (effect == "Sepia")
+                    {
+                        imageWithEffect = image.Clone(ctx => ctx.Sepia());
+                    }
+                    else if (effect == "Blur")
+                    {
+                        imageWithEffect = image.Clone(ctx => ctx.GaussianBlur());
+                    }
+                    else if (effect == "Sharpen")
+                    {
+                        imageWithEffect = image.Clone(ctx => ctx.GaussianSharpen());
+                    }
+                    else if (effect == "Glow")
+                    {
+                        imageWithEffect = image.Clone(ctx => ctx.Glow());
+                    }
+                    else if (effect == "Invert")
+                    {
+                        imageWithEffect = image.Clone(ctx => ctx.Invert());
+                    }
+                    else
+                    {
+                        imageWithEffect = image;
+                    }
+
+                    imageWithEffect.Save(Response.Body, format);
+                }
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "");
             }
