@@ -9,6 +9,14 @@ namespace MediaGallery.Data
         public float? Latitude { get; set; }
         public float? Longitude { get; set; }
 
+        public bool HasCoordinates
+        {
+            get
+            {
+                return Latitude.HasValue && Longitude.HasValue;
+            }
+        }
+
         public string GetUrlPath()
         {
             var path = "";
