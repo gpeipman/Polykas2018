@@ -1,0 +1,20 @@
+﻿@model IEnumerable<MediaGallery.Data.MediaItem>
+@inject GalleryContext _context;
+
+<div class="row product-list">
+    @foreach (var item in Model)
+    {
+        var routeData = new Dictionary<string, string>
+        {
+            { "id", item.Id.ToString() }
+        };
+        <div class="col-md-4 col-sm-6 col-xs-12">
+            <div class="product-item">
+                <div class="pi-img-wrapper">
+                    <a asp-controller="Home" asp-action="Details" asp-all-route-data="@routeData"><img src="@Url.Content(_context.GetItemUrl(item))" class="img-responsive" style="height:200px" alt="@item.Title"></a>
+                </div>
+                <h3><a asp-controller="Home" asp-action="Details" asp-all-route-data="@routeData">@item.Title</a></h3>
+            </div>
+        </div>
+    }
+</div>

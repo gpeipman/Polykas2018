@@ -1,0 +1,136 @@
+﻿@model MediaGallery.Data.Photo
+@using System.Globalization
+@inject GalleryContext _context
+@{
+    ViewData["Title"] = "Picture";
+}
+<div class="main">
+    <div class="container">
+
+        <!-- BEGIN SIDEBAR & CONTENT -->
+        <div class="row margin-bottom-10">
+
+            <partial name="_Sidebar" />
+
+            <!-- BEGIN CONTENT -->
+            <div class="col-md-9 col-sm-7">
+                <h2>@Model.Title</h2>
+
+                <img id="GalleryImage" src="@Url.Content(_context.GetItemUrl(Model))" style="max-width:800px; border: 1px solid darkgray" />
+            </div>
+            <!-- END CONTENT -->
+        </div>
+        <div class="row margin-bottom-40">
+            <div class="col-md-3"></div>
+            <div class="col-md-9 col-sm-7">
+                <a href="@Url.Action("Edit","Home", new { id = Model.Id })" class="btn btn-primary">Muuda</a>
+                <a href="#" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Kustuta</a>
+                <select id="effectDropDown">
+                    <option value=""></option>
+                    <option value="BlackWhite">Must-valge</option>
+                    <option value="OilPaint">Õlimaal</option>
+                    <option value="Sepia">Sepia</option>
+                    <option value="Blur">Blur</option>
+                    <option value="Sharpen">Sharpen</option>
+                    <option value="Glow">Glow</option>
+                    <option value="Invert">Invert</option>
+                </select>
+                <div class="text-warning" id="EffectWarning" style="display:none">Muudan pilti ....</div>
+            </div>
+            <!-- END SIDEBAR & CONTENT -->
+        </div>
+        <div class="row margin-bottom-40">
+            <div class="col-md-3"></div>
+            <div class="col-md-9 col-sm-7">
+                <div id="map" style="width:800px;height:600px">
+
+                </div>
+             </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Pildi kustutamine</h4>
+            </div>
+            <div class="modal-body">
+                <p>Oled kindel, et soovid pildi kustutada?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="DeleteImageButton">Kustuta</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Loobu</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<form method="post" id="DeleteForm" action="@Url.Action("DeleteFile", "Home", new { Id = Model.Id })"></form>
+
+@section scripts {
+    <link rel="stylesheet" href="https://atlas.microsoft.com/sdk/css/atlas.min.css?api-version=1" type="text/css" />
+    <script src="https://atlas.microsoft.com/sdk/js/atlas.min.js?api-version=1"></script>
+    <script src="https://atlas.microsoft.com/sdk/js/atlas-service.min.js?api-version=1"></script>
+    <script>
+
+    var effectRoute = '@Html.Raw(Url.Action("GetFileWithEffect", "Home", new { id = Model.Id, effect = ".effect." }))';
+    var subscriptionKey = "ikPtVkYSewuG9SQZFaMdoOXncLQur5dehFfevCQHqUk";
+
+    var mapCenterPosition = [@Model.Longitude.Value.ToString(CultureInfo.InvariantCulture), @Model.Latitude.Value.ToString(CultureInfo.InvariantCulture)];
+        
+    $(document).ready(function () {
+        $('#DeleteImageButton').click(function () {
+            $('#DeleteForm').submit();
+            return false;
+        });
+
+        $('#effectDropDown').change(function () {
+            $('#EffectWarning').css('display', 'inline-block');
+            $("#GalleryImage").one("load", function () {
+                $('#EffectWarning').hide();
+            })
+            var effect = $('#effectDropDown').val();
+            var url = effectRoute.replace('.effect.', effect);
+
+            $('#GalleryImage').attr('src', url);
+        })
+
+        if (mapCenterPosition) {
+
+            console.log(mapCenterPosition);
+            var map = new atlas.Map("map", {
+                "subscription-key": subscriptionKey,
+                center: mapCenterPosition,
+                zoom: 17
+            });
+
+            map.events.add("load", function () {
+                var zoomControl = new atlas.control.ZoomControl();
+
+                /* Add the zoom control to the map*/
+                map.controls.add(zoomControl, {
+                    position: "bottom-right"
+                });
+
+                /*Create a data source and add it to the map*/
+                var dataSource = new atlas.source.DataSource();
+                map.sources.add(dataSource);
+                var point = new atlas.Shape(new atlas.data.Point(mapCenterPosition));
+                //Add the symbol to the data source.
+                dataSource.add([point]);
+
+                //Create a symbol layer using the data source and add it to the map
+                map.layers.add(new atlas.layer.SymbolLayer(dataSource, null));
+            });
+        }
+    });
+
+
+    </script>
+}

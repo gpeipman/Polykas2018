@@ -1,0 +1,15 @@
+﻿@model Dictionary<int, string>
+
+<ul class="breadcrumb">
+    <li><a asp-action="Index" asp-controller="Home">Home</a></li>
+    @foreach(var item in Model)
+    { 
+        var routeData = new Dictionary<string, string>
+        {
+            { "id", item.Key.ToString() }
+        };
+        <li>
+            <a asp-controller="Home" asp-action="Details" asp-all-route-data="@routeData">@item.Value</a>
+        </li>
+    }
+</ul>
