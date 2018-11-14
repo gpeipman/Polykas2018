@@ -58,8 +58,18 @@
                         <li><a href="shop-account.html">My Account</a></li>
                         <li><a href="shop-wishlist.html">My Wishlist</a></li>
                         <li><a href="shop-checkout.html">Checkout</a></li>
-                        <li><a href="page-login.html">Log In</a></li>
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li>@User.Identity.Name</li>
+                            <li><a onclick="$('#logoutForm').submit()">Logi välja</a></li>
+                        }
+                        else
+                        {
+                            <li><a asp-area="Identity" asp-page="/Account/Register">Register</a></li>
+                            <li><a asp-area="Identity" asp-page="/Account/Login">Login</a></li>
+                        }
                     </ul>
+                    <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" id="logoutForm" class="navbar-right"></form>
                 </div>
                 <!-- END TOP BAR MENU -->
             </div>
@@ -74,9 +84,11 @@
             <!-- BEGIN NAVIGATION -->
             <div class="header-navigation">
                 <ul>
-                    <li><a href="@Url.Action("CreateFolder", new { parentFolder = _galleryContext.GetCurrentFolderId() })">Lisa kaust</a></li>
-                    <li><a href="@Url.Action("UploadFile", new { parentFolder = _galleryContext.GetCurrentFolderId() })">Lisa fail</a></li>
-
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li><a href="@Url.Action("CreateFolder", new { parentFolder = _galleryContext.GetCurrentFolderId() })">Lisa kaust</a></li>
+                        <li><a href="@Url.Action("UploadFile", new { parentFolder = _galleryContext.GetCurrentFolderId() })">Lisa fail</a></li>
+                    }
                     <!-- BEGIN TOP SEARCH -->
                     <li class="menu-search">
                         <span class="sep"></span>

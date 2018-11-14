@@ -41,8 +41,11 @@ namespace MediaGallery
                 //options.UseInMemoryDatabase(Guid.Empty.ToString()));
                 options.UseSqlite("Data Source=mydb.db"));
             //options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddIdentity<IdentityUser, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+            .AddRoleManager<RoleManager<IdentityRole>>()
+            .AddDefaultUI()
+            .AddDefaultTokenProviders();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
@@ -55,6 +58,7 @@ namespace MediaGallery
             services.AddScoped<SaveFolderToStoreCommand>();
             services.AddScoped<SaveFolderToDatabaseCommand>();
             services.AddScoped<CreateFolderCommand>();
+            services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, UserClaimsPrincipalFactory<IdentityUser, IdentityRole>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

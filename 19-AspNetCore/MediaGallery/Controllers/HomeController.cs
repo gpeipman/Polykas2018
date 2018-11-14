@@ -17,6 +17,7 @@ using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using ExifLibrary;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MediaGallery.Controllers
 {
@@ -43,6 +44,7 @@ namespace MediaGallery.Controllers
 
         public IActionResult Index()
         {
+            var inRole = User.IsInRole("Admin");
             var model = new FrontPageModel();
             model.NewPhotos = _dataContext.Photos.Cast<MediaItem>().ToList();
             model.PopularPhotos = _dataContext.Photos.Cast<MediaItem>().ToList();
@@ -73,6 +75,7 @@ namespace MediaGallery.Controllers
             return View("Picture", item);
         }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult CreateFolder(int? parentFolder)
         {
             var model = new EditFolderModel();
@@ -94,8 +97,9 @@ namespace MediaGallery.Controllers
             createFolderCommand.Execute(model);
 
             return Redirect(Url.Content("~/"));
-        } 
+        }
 
+        [Authorize(Roles = "Admin")]
         public IActionResult Edit(int id)
         {
             var item = _dataContext.Photos.FirstOrDefault(i => i.Id == id);
@@ -111,6 +115,7 @@ namespace MediaGallery.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Edit(PhotoEditModel model)
         {
@@ -158,6 +163,7 @@ namespace MediaGallery.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public IActionResult UploadFile(int? parentFolder)
         {
             ViewBag.ParentFolderId = parentFolder;
@@ -166,6 +172,7 @@ namespace MediaGallery.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult UploadFile(IList<IFormFile> files, int? parentFolder, [FromServices]SavePhotoCommand savePhotoCommand)
         {
             var list = new List<string>();
@@ -241,6 +248,7 @@ namespace MediaGallery.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public IActionResult DeleteFile(int id)
         {
             var file = _dataContext.Photos

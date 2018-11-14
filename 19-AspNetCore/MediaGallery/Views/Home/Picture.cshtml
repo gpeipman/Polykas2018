@@ -6,7 +6,7 @@
 }
 
 <div class="main">
-    <div class="container">
+    <div class="container">        
 
         <!-- BEGIN SIDEBAR & CONTENT -->
         <div class="row margin-bottom-10">
@@ -16,36 +16,44 @@
             <!-- BEGIN CONTENT -->
             <div class="col-md-9 col-sm-7">
                 <h2>@Model.Title</h2>
-
-                <img id="GalleryImage" src="@Url.Content(_context.GetItemUrl(Model))" style="max-width:800px; border: 1px solid darkgray" />
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#home">Foto</a></li>
+                    @if ((User.IsInRole("User") || User.IsInRole("Admin")) && Model.HasCoordinates)
+                    {
+                    <li><a data-toggle="tab" href="#menu1">Kaart</a></li>
+                    }
+                </ul>
+                <div class="tab-content">
+                    <div id="home" class="tab-pane fade in active">
+                        <img id="GalleryImage" src="@Url.Content(_context.GetItemUrl(Model))" style="max-width:800px; border: 1px solid darkgray" />
+                        
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a href="@Url.Action("Edit", "Home", new { id = Model.Id })" class="btn btn-primary">Muuda</a>
+                            <a href="#" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Kustuta</a>
+                        }
+                        <select id="effectDropDown">
+                            <option value=""></option>
+                            <option value="BlackWhite">Must-valge</option>
+                            <option value="OilPaint">Õlimaal</option>
+                            <option value="Sepia">Sepia</option>
+                            <option value="Blur">Blur</option>
+                            <option value="Sharpen">Sharpen</option>
+                            <option value="Glow">Glow</option>
+                            <option value="Invert">Invert</option>
+                        </select>
+                        <div class="text-warning" id="EffectWarning" style="display:none">Muudan pilti ....</div>
+                    </div>
+                    @if ((User.IsInRole("User") || User.IsInRole("Admin")) && Model.HasCoordinates)
+                    {
+                    <div id="menu1" class="tab-pane fade" style="height:400px;">
+                        <div id="map" style="height:400px;width:600px;">
+                        </div>
+                    </div>
+                    }
+                </div>                
             </div>
             <!-- END CONTENT -->
-        </div>
-        <div class="row margin-bottom-40">
-            <div class="col-md-3"></div>
-            <div class="col-md-9 col-sm-7">
-                <a href="@Url.Action("Edit","Home", new { id = Model.Id })" class="btn btn-primary">Muuda</a>
-                <a href="#" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Kustuta</a>
-                <select id="effectDropDown">
-                    <option value=""></option>
-                    <option value="BlackWhite">Must-valge</option>
-                    <option value="OilPaint">Õlimaal</option>
-                    <option value="Sepia">Sepia</option>
-                    <option value="Blur">Blur</option>
-                    <option value="Sharpen">Sharpen</option>
-                    <option value="Glow">Glow</option>
-                    <option value="Invert">Invert</option>
-                </select>
-                <div class="text-warning" id="EffectWarning" style="display:none">Muudan pilti ....</div>
-            </div>
-            <!-- END SIDEBAR & CONTENT -->
-        </div>
-        <div class="row margin-bottom-40">
-            <div class="col-md-3"></div>
-            <div class="col-md-9 col-sm-7">
-                <div id="map" style="height:400px;width:600px;">
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -102,17 +110,22 @@
             $('#GalleryImage').attr('src', url);
         })
 
-        var lon = @Model.Longitude.Value.ToString(CultureInfo.InvariantCulture);
-        var lat = @Model.Latitude.Value.ToString(CultureInfo.InvariantCulture);
+        @if ((User.IsInRole("User") || User.IsInRole("Admin")) && Model.HasCoordinates)
+        { 
+            <text>
+            var lon = @Model.Longitude.Value.ToString(CultureInfo.InvariantCulture);
+            var lat = @Model.Latitude.Value.ToString(CultureInfo.InvariantCulture);
 
-        var map = L.map('map').setView([lat, lon], 16);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+            var map = L.map('map').setView([lat, lon], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
 
-        L.marker([lat, lon]).addTo(map)
-            .bindPopup('Photo is taken here.')
-            .openPopup();
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup('Photo is taken here.')
+                .openPopup();
+            </text>
+        }
     });
     </script>
 }
