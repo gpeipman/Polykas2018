@@ -1,0 +1,188 @@
+﻿@model MediaGallery.Data.Photo
+@using System.Globalization
+@inject GalleryContext _context
+@{
+    ViewData["Title"] = "Picture";
+}
+
+<div class="main">
+    <div class="container">        
+
+        <!-- BEGIN SIDEBAR & CONTENT -->
+        <div class="row margin-bottom-10">
+
+            <partial name="_Sidebar" />
+
+            <!-- BEGIN CONTENT -->
+            <div class="col-md-9 col-sm-7">
+                <h2>@Model.Title</h2>
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#home">Foto</a></li>
+                    @if ((User.IsInRole("User") || User.IsInRole("Admin")) && Model.HasCoordinates)
+                    {
+                        <li><a data-toggle="tab" href="#menu1">Kaart</a></li>
+                    }
+                </ul>
+                <div class="tab-content">
+                    <div id="home" class="tab-pane fade in active">
+                        <img id="GalleryImage" src="@Url.Content(_context.GetItemUrl(Model))" style="max-width:800px; border: 1px solid darkgray" />
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a href="@Url.Action("Edit", "Home", new { id = Model.Id })" class="btn btn-primary">Muuda</a>
+                            <a href="#" data-toggle="modal" data-target="#myModal" class="btn btn-primary">Kustuta</a>
+                        }
+                        <select id="effectDropDown">
+                            <option value=""></option>
+                            <option value="BlackWhite">Must-valge</option>
+                            <option value="OilPaint">Õlimaal</option>
+                            <option value="Sepia">Sepia</option>
+                            <option value="Blur">Blur</option>
+                            <option value="Sharpen">Sharpen</option>
+                            <option value="Glow">Glow</option>
+                            <option value="Invert">Invert</option>
+                        </select>
+                        <div class="text-warning" id="EffectWarning" style="display:none">Muudan pilti ....</div>
+                    </div>
+                    @if ((User.IsInRole("User") || User.IsInRole("Admin")) && Model.HasCoordinates)
+                    {
+                        <div id="menu1" class="tab-pane fade" style="height:400px;">
+                            <div id="map" style="height:400px;width:600px;">
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (User.IsInRole("User") || User.IsInRole("Admin"))
+                {
+                    @Html.ValidationMessage("Content")
+                    <form asp-action="SaveComment" method="post">
+                    Kommentaar:<br />
+                    <textarea name="Content"></textarea><br />
+                    <input type="submit" value="Ok" />
+                    <input type="hidden" name="mediaItemId" value="@Model.Id" />
+                    </form>
+                }
+
+                @foreach (var comment in Model.Comments)
+                {
+                <div class="row">
+                    @comment.Content <br />
+                    @comment.User.UserName @comment.Time
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a href="#" class="deletePhoto" data-id="@comment.Id" data-toggle="modal" data-target="#deleteCommentModal">Kustuta</a>
+                    }
+                </div>
+                }
+            </div>
+            <!-- END CONTENT -->
+
+            
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Pildi kustutamine</h4>
+            </div>
+            <div class="modal-body">
+                <p>Oled kindel, et soovid pildi kustutada?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="DeleteImageButton">Kustuta</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Loobu</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="deleteCommentModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Kommentaari kustutamine</h4>
+            </div>
+            <div class="modal-body">
+                <p>Oled kindel, et valitud kommentaari kustutada?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" id="DeleteCommentButton">Kustuta</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Loobu</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<form method="post" id="DeleteForm" action="@Url.Action("DeleteFile", "Home", new { Id = Model.Id })"></form>
+<form method="post" id="DeleteCommentForm" action="@Url.Action("DeleteComment","Home")">
+    <input type="hidden" name="id" id="deleteCommentId" />
+</form>
+
+@section scripts {
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+          integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+          crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+            integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+            crossorigin=""></script>
+    <script>
+
+    var effectRoute = '@Html.Raw(Url.Action("GetFileWithEffect", "Home", new { id = Model.Id, effect = ".effect." }))';
+    var subscriptionKey = "ikPtVkYSewuG9SQZFaMdoOXncLQur5dehFfevCQHqUk";
+
+    $(document).ready(function () {
+        $('#DeleteImageButton').click(function () {
+            $('#DeleteForm').submit();
+            return false;
+        });
+
+        $('#effectDropDown').change(function () {
+            $('#EffectWarning').css('display', 'inline-block');
+            $("#GalleryImage").one("load", function () {
+                $('#EffectWarning').hide();
+            })
+            var effect = $('#effectDropDown').val();
+            var url = effectRoute.replace('.effect.', effect);
+
+            $('#GalleryImage').attr('src', url);
+        })
+
+        $('.deletePhoto').click(function () {
+            $('#deleteCommentId').val($(this).attr('data-id'));
+        });
+
+        $('#DeleteCommentButton').click(function () {
+            $('#DeleteCommentForm').submit();
+        });
+
+        @if ((User.IsInRole("User") || User.IsInRole("Admin")) && Model.HasCoordinates)
+        { 
+            <text>
+            var lon = @Model.Longitude.Value.ToString(CultureInfo.InvariantCulture);
+            var lat = @Model.Latitude.Value.ToString(CultureInfo.InvariantCulture);
+
+            var map = L.map('map').setView([lat, lon], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            L.marker([lat, lon]).addTo(map)
+                .bindPopup('Photo is taken here.')
+                .openPopup();
+            </text>
+        }
+    });
+    </script>
+}

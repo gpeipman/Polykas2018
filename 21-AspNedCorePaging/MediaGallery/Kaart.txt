@@ -1,0 +1,28 @@
+﻿<div id="map" style="height:300px;width:600px">
+</div>
+
+@section Scripts  {
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+            integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+            crossorigin=""></script>
+    <script>
+        $(document).ready(function () {
+            @if(Model.HasValidCoordinates())
+            { 
+                <text>
+                    var lon = @Model.Lon.Value.ToString(CultureInfo.InvariantCulture);
+                    var lat = @Model.Lat.Value.ToString(CultureInfo.InvariantCulture);
+
+                    var map = L.map('map').setView([lat, lon], 16);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    }).addTo(map);
+
+                    L.marker([lat, lon]).addTo(map)
+                        .bindPopup('Photo is taken here.')
+                        .openPopup();
+                </text>
+            }
+        });
+    </script>
+}
