@@ -12,6 +12,21 @@
 
             <!-- BEGIN CONTENT -->
             <div class="col-md-9 col-sm-7">
+                <ul>
+                @foreach(var photo in Model.AllPhotos.Results)
+                {
+                    <li>@photo.Id - @photo.Thumbnail</li>
+                }
+                </ul>
+
+                <!-- SIIA ASEMELE PAGER COMPONENT -->
+                <ul>
+                    @for(var i = 1; i <= Model.AllPhotos.PageCount; i++)
+                    {
+                        <li style="display:inline"><a href="@Url.Action("Index", new { page = i })">@i</a></li>
+                    }
+                </ul>
+
                 <h2>New photos</h2>
 
                 <partial name="_ItemsList" model="@Model.NewPhotos" />

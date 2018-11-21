@@ -42,10 +42,16 @@ namespace MediaGallery.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(int page = 1)
         {
+            page = Math.Max(1, page);
+
             var inRole = User.IsInRole("Admin");
             var model = new FrontPageModel();
+            model.AllPhotos = _dataContext.Photos
+                                    .Cast<MediaItem>()
+                                    .GetPaged(page, 5);
+
             model.NewPhotos = _dataContext.Photos.Cast<MediaItem>().ToList();
             model.PopularPhotos = _dataContext.Photos.Cast<MediaItem>().ToList();
 
