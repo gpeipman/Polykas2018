@@ -1,0 +1,85 @@
+﻿@model MediaGallery.Data.MediaFolder
+@{
+    ViewData["Title"] = "Folder";
+}
+
+<!-- Core CSS file -->
+<link rel="stylesheet" href="@Url.Content("~/lib/photoswipe/photoswipe.css")">
+
+<!-- Skin CSS file (styling of UI - buttons, caption, etc.)
+     In the folder of skin CSS file there are also:
+     - .png and .svg icons sprite,
+     - preloader.gif (for browsers that do not support CSS animations) -->
+<link rel="stylesheet" href="@Url.Content("~/lib/photoswipe/default-skin/default-skin.css")">
+
+<div class="main">
+    <div class="container">
+        <!-- BEGIN SIDEBAR & CONTENT -->
+        <div class="row margin-bottom-40">
+
+            <partial name="_Sidebar" />
+
+            <!-- BEGIN CONTENT -->
+            <div class="col-md-9 col-sm-7">
+                <h2>@Model.Title</h2>
+
+                <partial name="_ItemsList" model="@Model.Items" />
+
+                <!-- PAGER SIIA KOHTA -->
+            </div>
+            <!-- END CONTENT -->
+        </div>
+        <!-- END SIDEBAR & CONTENT -->
+    </div>
+</div>
+
+@section scripts {
+    <!-- Core JS file -->
+    <script src="@Url.Content("~/lib/photoswipe/photoswipe.min.js")"></script>
+
+    <!-- UI JS file -->
+    <script src="@Url.Content("~/lib/photoswipe/photoswipe-ui-default.min.js")"></script>
+
+    <script>
+        jQuery(document).ready(function () {
+            return;
+            var pswpElement = document.querySelectorAll('.pswp')[0];
+
+            // build items array
+            var items = [
+                @foreach(var photo in Model.Items.OfType<MediaGallery.Data.Photo>())
+                {
+                    <text>
+                    {
+                        src: '/@photo.FileName',
+                        w: 600,
+                        h: 800
+                    },
+                    </text>
+                }
+                {
+                    src: 'https://placekitten.com/600/400',
+                    w: 600,
+                    h: 800
+                },
+                {
+                    src: 'https://placekitten.com/1200/900',
+                    w: 1200,
+                    h: 900
+                }
+
+            ];
+
+            // define options (if needed)
+            var options = {
+                // optionName: 'option value'
+                // for example:
+                index: 0 // start at first slide
+            };
+
+            // Initializes and opens PhotoSwipe
+            var gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
+            gallery.init();
+        });
+    </script>
+}
